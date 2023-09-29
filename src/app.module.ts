@@ -9,12 +9,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import postgresConfig from './config/postgres.config';
 import jwtConfig from './config/jwt.config';
+import swaggerConfig from './config/swagger.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [postgresConfig, jwtConfig],
+      envFilePath: '.env',
+      load: [postgresConfig, jwtConfig, swaggerConfig],
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
