@@ -10,9 +10,14 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import postgresConfig from './config/postgres.config';
 import jwtConfig from './config/jwt.config';
 import swaggerConfig from './config/swagger.config';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -31,7 +36,7 @@ import swaggerConfig from './config/swagger.config';
           autoLoadEntities: true,
         };
         // 주의! development 환경에서만 개발 편의성을 위해 활용
-        if (configService.get('NODE_ENV') === 'development') {
+        if (configService.get('NODE_ENV') === 'dev') {
           console.info('Sync TypeORM');
           obj = Object.assign(obj, {
             synchronize: true,

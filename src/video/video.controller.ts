@@ -25,9 +25,12 @@ import { CreateVideoResDto, FindVideoResDto } from './dto/res.dto';
 import { UserAfterAuth } from 'src/common/dto/user.dto';
 import { User } from 'src/common/decorator/user.decorator';
 import { PageReqDto } from 'src/common/dto/req.dto';
+import { ThrottlerBehindProxyGuard } from 'src/common/guard/throttler-behind-proxy.guard';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @ApiTags('Video')
 @ApiExtraModels(CreateVideoResDto, FindVideoResDto, FindVideoReqDto)
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller('videos')
 export class VideoController {
   constructor(private readonly videoService: VideoService) {}
@@ -62,6 +65,7 @@ export class VideoController {
 
   @ApiBearerAuth()
   @ApiGetItemsResponse(FindVideoResDto)
+  @SkipThrottle()
   @Get()
   async findAll(@Query() { page, size }: PageReqDto): Promise<{ items: FindVideoResDto[] }> {
     const videos = await this.videoService.findAll(page, size);
@@ -77,6 +81,7 @@ export class VideoController {
   }
 
   @ApiBearerAuth()
+  @Throttle(3, 60)
   @Get(':id/download')
   async play(
     // @Headers('Sec-Fetch-Dest') setFetchDest: 'document' | 'video',
